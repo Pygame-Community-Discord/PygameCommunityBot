@@ -111,7 +111,7 @@ class UserCommand(FunCommand, HelpCommand):
             title="Reminder set!",
             description=(
                 f"Gonna remind {self.author.name} in {utils.format_timedelta(_delta)}\n"
-                f"And that is on {on} UTC"
+                f"And that is on {utils.format_datetime(on)}"
             ),
         )
 
@@ -214,7 +214,7 @@ class UserCommand(FunCommand, HelpCommand):
                 cin = channel.mention if channel is not None else "DM"
                 desc += (
                     f"Reminder ID: `{cnt}`\n"
-                    f"**On `{on}` in {cin}:**\n> {reminder}\n\n"
+                    f"**On {utils.format_datetime(on)} in {cin}:**\n> {reminder}\n\n"
                 )
                 cnt += 1
 

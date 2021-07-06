@@ -445,17 +445,15 @@ class AdminCommand(UserCommand, SudoCommand, EmsudoCommand):
             messages.reverse()
 
         if show_header and not raw:
-            start_date = messages[0].created_at.replace(tzinfo=None)
-            end_date = messages[-1].created_at.replace(tzinfo=None)
-            start_date_str = start_date.strftime(datetime_format_str)
-            end_date_str = end_date.strftime(datetime_format_str)
+            start_date = messages[0].created_at
+            end_date = messages[-1].created_at
 
             if start_date == end_date:
-                msg = f"On `{start_date_str} | {start_date.isoformat()}`"
+                msg = f"On {utils.format_datetime(start_date)}"
             else:
                 msg = (
-                    f"From\n> `{start_date_str} | {start_date.isoformat()}`\n"
-                    + f"To\n> `{end_date_str} | {end_date.isoformat()}`"
+                    f"From\n> {utils.format_datetime(start_date)}\n"
+                    f"To\n> {utils.format_datetime(end_date)}"
                 )
 
             archive_header_msg_embed = embed_utils.create(
@@ -1267,7 +1265,7 @@ class AdminCommand(UserCommand, SudoCommand, EmsudoCommand):
         description = (
             f"Server Name: `{guild.name}`\n"
             f"Server ID: `{guild.id}`\n"
-            f"Created At: `{guild.created_at.strftime('%a %b %d %Y, %I:%M:%S %p')} UTC`\n"
+            f"Created At: {utils.format_datetime(guild.created_at)}\n"
         )
 
         description += f"Number of Members: `{guild.member_count}`\n"
@@ -1286,9 +1284,10 @@ class AdminCommand(UserCommand, SudoCommand, EmsudoCommand):
                 f"Number of Server Boosts: `{guild.premium_subscription_count}`\n"
             )
 
-        description += (
-            f"Owner of Server: `{guild.owner.name}#{guild.owner.discriminator}`\n"
-        )
+        if guild.owner is not None:
+            description += (
+                f"Owner of Server: `{guild.owner.name}#{guild.owner.discriminator}`\n"
+            )
 
         kwargs = {
             "title": f"Server information for {guild.name}:",

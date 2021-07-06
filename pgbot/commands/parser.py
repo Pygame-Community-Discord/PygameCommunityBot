@@ -356,17 +356,19 @@ def parse_args(cmd_str: str):
                 temp = temp[-1]
 
             temp.append(arg)
+
+        elif prevkey is not None:
+            # had a keyword, flush arg into keyword
+            kwargs[prevkey] = arg
+            prevkey = None
+
+        elif kwstart:
+            raise KwargError(
+                "Keyword arguments cannot come before positional arguments"
+            )
+
         else:
-            if prevkey is not None:
-                # had a keyword, flush arg into keyword
-                kwargs[prevkey] = arg
-                prevkey = None
-            else:
-                if kwstart:
-                    raise KwargError(
-                        "Keyword arguments cannot come before positional arguments"
-                    )
-                args.append(arg)
+            args.append(arg)
 
     for arg in split_args(cmd_str):
         if not isinstance(arg, str):

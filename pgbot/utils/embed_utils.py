@@ -23,6 +23,7 @@ import discord
 from discord.embeds import EmptyEmbed
 
 from pgbot import common
+from pgbot.utils import utils
 
 EMBED_TOP_LEVEL_ATTRIBUTES_MASK_DICT = {
     "provider": None,
@@ -1794,8 +1795,6 @@ def get_member_info_str(member: Union[discord.Member, discord.User]):
     """
     Get member info in a string, utility function for the embed functions
     """
-    datetime_format_str = "`%a, %d %b %Y`\n> `%H:%M:%S (UTC)  `"
-
     member_name_info = f"\u200b\n*Name*: \n> {member.mention} \n> "
     if hasattr(member, "nick") and member.display_name:
         member_nick = (
@@ -1810,21 +1809,13 @@ def get_member_info_str(member: Union[discord.Member, discord.User]):
     else:
         member_name_info += f"**{member.name}**#{member.discriminator}\n\n"
 
-    member_created_at_fdtime = member.created_at.astimezone(
-        tz=datetime.timezone.utc
-    ).strftime(datetime_format_str)
     member_created_at_info = (
-        f"*Created On*:\n`{member.created_at.isoformat()}`\n"
-        + f"> {member_created_at_fdtime}\n\n"
+        f"*Created On*:\n> {utils.format_datetime(member.created_at)}\n\n"
     )
 
     if isinstance(member, discord.Member) and member.joined_at:
-        member_joined_at_fdtime = member.joined_at.astimezone(
-            tz=datetime.timezone.utc
-        ).strftime(datetime_format_str)
         member_joined_at_info = (
-            f"*Joined On*:\n`{member.joined_at.isoformat()}`\n"
-            + f"> {member_joined_at_fdtime}\n\n"
+            f"*Joined On*:\n> {utils.format_datetime(member.joined_at)}\n\n"
         )
     else:
         member_joined_at_info = "*Joined On*: \n> `...`\n\n"
@@ -1888,26 +1879,13 @@ def get_msg_info_embed(msg: discord.Message, author: bool = True):
     """
     member: Union[discord.Member, discord.User] = msg.author
 
-    datetime_format_str = "`%a, %d %b %Y`\n> `%H:%M:%S (UTC)  `"
-    msg_created_at_fdtime = msg.created_at.astimezone(
-        tz=datetime.timezone.utc
-    ).strftime(datetime_format_str)
-
     msg_created_at_info = (
-        "\u200b\n"
-        if author
-        else ""
-        + f"*Created On:*\n`{msg.created_at.isoformat()}`\n"
-        + f"> {msg_created_at_fdtime}\n\n"
+        f"*Created On:*\n> {utils.format_datetime(msg.created_at)}\n\n"
     )
 
     if msg.edited_at:
-        msg_edited_at_fdtime = msg.edited_at.astimezone(
-            tz=datetime.timezone.utc
-        ).strftime(datetime_format_str)
         msg_edited_at_info = (
-            f"*Last Edited On*:\n`{msg.edited_at.isoformat()}`\n"
-            + f"> {msg_edited_at_fdtime}\n\n"
+            f"*Last Edited On*: \n> {utils.format_datetime(msg.edited_at)}\n\n"
         )
 
     else:
@@ -1936,14 +1914,15 @@ def get_msg_info_embed(msg: discord.Message, author: bool = True):
     if author:
         return create(
             title="__Message & Author Info__",
-            description="".join(
+            description="\n".join(
                 (
                     "__Text"
                     + (" (Shortened)" if len(msg.content) > 2000 else "")
                     + "__:",
-                    f"\n\n {msg.content[:2001]}" + "\n\n[...]\n\u2800"
+                    f"\n {msg.content[:2001]}" + "\n\n[...]"
                     if len(msg.content) > 2000
-                    else "\n\u2800",
+                    else msg.content,
+                    "\u2800",
                 )
             ),
             thumbnail_url=str(member.avatar_url),
@@ -1973,12 +1952,13 @@ def get_msg_info_embed(msg: discord.Message, author: bool = True):
         title="__Message Info__",
         author_name=f"{member.name}#{member.discriminator}",
         author_icon_url=str(member.avatar_url),
-        description="".join(
+        description="\n".join(
             (
                 "__Text" + (" (Shortened)" if len(msg.content) > 2000 else "") + "__:",
-                f"\n\n {msg.content[:2001]}" + "\n\n[...]\n\u2800"
+                f"\n {msg.content[:2001]}" + "\n[...]"
                 if len(msg.content) > 2000
-                else "\n\u2800",
+                else msg.content,
+                "\u2800",
             )
         ),
         fields=[

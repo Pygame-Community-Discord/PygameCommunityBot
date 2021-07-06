@@ -350,3 +350,25 @@ async def coro_check_channels_permissions(
             await asyncio.sleep(0)
 
     return booleans
+
+
+def format_datetime(dt: Union[int, float, datetime.datetime], tformat: str = "f"):
+    """
+    Get a discord timestamp formatted string that renders it correctly on the
+    discord end. dt can be UNIX timestamp or datetime object while tformat
+    can be one of:
+    "f" (default) short datetime
+    "F" long datetime
+    "t" short time
+    "T" long time
+    "d" short date
+    "D" long date
+    "R" relative time (does not have much precision)
+    """
+    if isinstance(dt, datetime.datetime):
+        dt = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+
+    if isinstance(dt, float):
+        dt = int(dt)
+
+    return f"<t:{dt}:{tformat}>"
