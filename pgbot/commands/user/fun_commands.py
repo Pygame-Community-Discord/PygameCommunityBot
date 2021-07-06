@@ -181,6 +181,10 @@ class FunCommand(BaseCommand):
         async with db.DiscordDB("emotions") as db_obj:
             all_emotions = db_obj.get({})
 
+        if "depression" in all_emotions:
+            value = all_emotions["depression"]["value"]
+            all_emotions["depression"] = value
+
         emotion_percentage = vibecheck.get_emotion_percentage(all_emotions, round_by=-1)
         all_emotion_response = vibecheck.get_emotion_desc_dict(all_emotions)
 

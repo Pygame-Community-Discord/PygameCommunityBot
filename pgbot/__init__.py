@@ -310,6 +310,11 @@ async def handle_message(msg: discord.Message):
                 fields=fields,
             )
         elif (
+            random.random() < await emotion.get("depression") / 200
+            or msg.author.id == 683852333293109269
+        ):
+            await emotion.dad_joke(msg, mode="depression")
+        elif (
             random.random() < await emotion.get("happy") / 200
             or msg.author.id == 683852333293109269
         ):

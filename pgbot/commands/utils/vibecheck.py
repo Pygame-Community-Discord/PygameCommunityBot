@@ -19,11 +19,12 @@ EMOTIONS_PER_ROW = 2
 NEGATIVE_EMOTIONS = {"bored": "exhausted", "happy": "sad"}
 EMOTION_COLORS = {
     "happy": (230, 28, 226),
-    "sad": (28, 28, 230),
+    "sad": (11, 117, 217),
     "anger": (230, 36, 18),
     "bored": (230, 181, 18),
     "exhausted": (235, 127, 19),
     "confused": (19, 235, 228),
+    "depression": (28, 28, 230),
 }
 
 
@@ -80,6 +81,13 @@ def get_emotion_desc_dict(emotions: dict[str, int]):
             "emoji_link": "https://cdn.discordapp.com/emojis/779775305224159232.gif?v=1",
             "override_emotion": "anger",
         },
+        "depression": {
+            f"msg": "I'm depressed...\nI've been sad too long, make me happy to "
+            f"lift me out of depression...\n"
+            f"*The snek's depression level is `{round(emotions.get('depression', 0), 3)}`, "
+            f"make it happy for it to slowly become less depressed.*",
+            "emoji_link": "https://cdn.discordapp.com/emojis/845321616094789712.png?v=1",
+        },
     }
 
 
@@ -134,7 +142,7 @@ def emotion_pie_chart(emotions: dict[str, int], pie_radius: int):
     font = pygame.font.Font(os.path.join("assets", "tahoma.ttf"), 30)
     font.bold = True
 
-    image = pygame.Surface((pie_radius * 2, pie_radius * 2 + 30 * len(emotions)))
+    image = pygame.Surface((pie_radius * 2, pie_radius * 2 + 30 * len(emotions)), flags=pygame.SRCALPHA)
     image.fill((0, 0, 0, 0))
 
     emotion_percentage = get_emotion_percentage(emotions)
