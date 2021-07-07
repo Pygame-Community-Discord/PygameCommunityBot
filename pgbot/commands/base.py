@@ -14,6 +14,7 @@ import asyncio
 import datetime
 import inspect
 import random
+import re
 from typing import Any, Optional, Union
 
 import discord
@@ -160,7 +161,18 @@ class BaseCommand:
             raise ValueError()
 
         elif isinstance(arg, str):
-            if anno in ["CodeBlock", "String", "datetime.datetime", "datetime"]:
+            if anno in ["CodeBlock", "String"]:
+                raise ValueError()
+
+            elif anno in ["datetime.datetime", "datetime"]:
+                if not arg.startswith("<t:") or not arg.endswith(">"):
+                    raise ValueError()
+
+                timestamp = re.search(r"\d+", arg)
+                if timestamp is not None:
+                    timestamp = float(arg[timestamp.start() : timestamp.end()])
+                    return datetime.datetime.fromtimestamp(timestamp)
+
                 raise ValueError()
 
             elif anno == "str":

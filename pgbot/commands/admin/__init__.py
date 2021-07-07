@@ -26,6 +26,7 @@ from pgbot.commands.admin.sudo import SudoCommand
 from pgbot.commands.base import BotException, CodeBlock, String, add_group, no_dm
 from pgbot.commands.user import UserCommand
 from pgbot.utils import embed_utils, utils
+from pgbot.commands.utils import browse
 
 process = psutil.Process(os.getpid())
 
@@ -1335,6 +1336,67 @@ class AdminCommand(UserCommand, SudoCommand, EmsudoCommand):
             await self.response_msg.delete()
         except discord.NotFound:
             pass
+
+    @no_dm
+    async def cmd_browse(
+        self,
+        channel: discord.TextChannel,
+        quantity: int,
+        before: Optional[Union[discord.Message, datetime.datetime]] = None,
+        after: Optional[Union[discord.Message, datetime.datetime]] = None,
+        around: Optional[Union[discord.Message, datetime.datetime]] = None,
+    ):
+        """
+        ->type More admin commands
+        ->signature pg!browse <channel> <quantity> [before=] [after=] [around=]
+        ->description Browse through Discord messages
+
+        ->extended description
+        Function to help browse through discord messages
+
+        __Args__:
+            `channel: discord.TextChannel`
+            > A Discord message that reactions should be added to.
+
+            `quantity: int`
+            > The number of messages to get
+
+            `before: (Time|Message)`
+            > The message or time before which the messages should be shown.
+
+            `after: (Time|Message)`
+            > The message or time after which the messages should be shown.
+
+            `around: (Time|Message)`
+            > The message or time around which the messages should be shown.
+
+        __Raises__:
+            > `BotException`: One or more given arguments are invalid.
+            > `HTTPException`: An invalid operation was blocked by Discord.
+        -----
+        """
+        if not utils.check_channel_permissions(
+            self.author,
+            channel,
+            permissions=("view_channel",),
+        ):
+            raise BotException(
+                f"Not enough permissions",
+                "You do not have enough permissions to run this command on the specified channel(s).",
+            )
+
+        if bool(after) + bool(before) + bool(around) > 1:
+            raise BotException(
+                "Too many arguments",
+                "Please, only set one of the following arguments:\n"
+                "`before`, `around`, `after`",
+            )
+
+        browse_embed = browse.MessageBrowser(
+            self.response_msg, self.author, self.cmd_str, self.page
+        )
+        await browse_embed.setup(channel, quantity, before, after, around)
+        await browse_embed.mainloop()
 
     async def cmd_feature(
         self, name: str, *channels: common.Channel, disable: bool = True
